@@ -16,7 +16,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 
 CHART = Path(sys.argv[1] if len(sys.argv) > 1 else
-             "charts/getting-started-todo-app-fastapi-claude.local_kind")
+             "charts/getting-started-todo-app-fastapi-gemini.local_kind")
 
 SERVICE = CHART / "templates" / "backend" / "service.yaml"
 BACKEND_CM = CHART / "templates" / "backend" / "configmap.yaml"
@@ -99,6 +99,12 @@ def patch_backend_deployment() -> None:
     # Add optional ANTHROPIC_API_KEY if missing
     if "ANTHROPIC_API_KEY" not in text:
         ai_env = """        env:
+        - name: GOOGLE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: todo-ai-secret
+              key: GOOGLE_API_KEY
+              optional: true
         - name: ANTHROPIC_API_KEY
           valueFrom:
             secretKeyRef:

@@ -1,9 +1,9 @@
-# Values for todo-lab-ai
+# Values for todo-gemini-agent
 backend:
   serviceType: LoadBalancer
   servicePort: 80
   repository:
-    image: todo-lab-ai
+    image: todo-gemini-agent
     tag: prod
   replicas: 2
   nodeSelector: {}

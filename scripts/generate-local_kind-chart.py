@@ -9,7 +9,7 @@ Why this script exists:
   is configured for local development (`develop: watch`), so the conversion is done from
   a temporary directory that contains compose.yaml (a copy of the production
   compose file). The chart name comes from that directory's name, set to
-  "getting-started-todo-app-fastapi-claude" to match the current project.
+  "getting-started-todo-app-fastapi-gemini" to match the current project.
 
 Usage (from the repository root):
   python scripts/generate-local_kind-chart.py
@@ -22,8 +22,8 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 SOURCE_COMPOSE = REPO / "compose-prod-build.yml" if (REPO / "compose-prod-build.yml").is_file() else REPO / "compose-local_kind.yaml"
-CHART_OUT = REPO / "charts" / "getting-started-todo-app-fastapi-claude.local_kind"
-PROJECT_DIR_NAME = "getting-started-todo-app-fastapi-claude"
+CHART_OUT = REPO / "charts" / "getting-started-todo-app-fastapi-gemini.local_kind"
+PROJECT_DIR_NAME = "getting-started-todo-app-fastapi-gemini"
 DEFAULT_ICON = "https://raw.githubusercontent.com/cstpeace0191/getting-started-todo-app-fastapi-claude/main/client/public/favicon.ico"
 
 

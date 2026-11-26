@@ -74,8 +74,28 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: todos
-      # Claude API 키 (호스트의 환경변수에서 전달, 없으면 AI 분류만 꺼짐)
+      # Gemini API 키 (ADK 기본 모델, 호스트의 환경변수에서 전달, 없으면 AI 기능만 꺼짐)
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      # Vertex AI 를 쓰려면 호스트에서 GOOGLE_GENAI_USE_VERTEXAI=TRUE, GOOGLE_CLOUD_PROJECT 를 지정한다.
+      # (기본값 FALSE: GOOGLE_API_KEY 로 Google AI Studio 사용)
+      GOOGLE_GENAI_USE_VERTEXAI: ${GOOGLE_GENAI_USE_VERTEXAI:-FALSE}
+      GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT:-}
+      GOOGLE_CLOUD_LOCATION: ${GOOGLE_CLOUD_LOCATION:-global}
+      # 아래 volumes 로 마운트한 gcloud ADC(Application Default Credentials) 파일 경로
+      GOOGLE_APPLICATION_CREDENTIALS: /secrets/gcloud-adc.json
+      # (선택) Claude 를 쓰려면 AI_MODEL=claude-opus-5-5 와 함께 지정 (ADK LiteLlm 경유)
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-}
+    volumes:
+      # `gcloud auth application-default login` 으로 만든 ADC 파일을 읽기 전용으로 마운트한다.
+      # Windows 기본 경로는 %APPDATA%\gcloud\, Linux/macOS 는 ~/.config/gcloud/ 이며
+      # 다르면 호스트 환경변수 GCLOUD_ADC_FILE 로 지정한다. 파일이 없으면 Compose 가 시작을 거부한다.
+      - type: bind
+        source: ${GCLOUD_ADC_FILE:-${APPDATA:-${HOME}/.config}/gcloud/application_default_credentials.json}
+        target: /secrets/gcloud-adc.json
+        read_only: true
+        bind:
+          create_host_path: false
     depends_on:
       postgres:
         condition: service_healthy

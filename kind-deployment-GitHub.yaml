@@ -3,7 +3,7 @@ kind: Secret
 metadata:
   name: todo-db-secret
   labels:
-    app.kubernetes.io/name: getting-started-todo-app-fastapi-claude
+    app.kubernetes.io/name: getting-started-todo-app-fastapi-gemini
     app.kubernetes.io/part-of: todo-app
 type: Opaque
 stringData:
@@ -14,7 +14,7 @@ kind: ConfigMap
 metadata:
   name: todo-config
   labels:
-    app.kubernetes.io/name: getting-started-todo-app-fastapi-claude
+    app.kubernetes.io/name: getting-started-todo-app-fastapi-gemini
     app.kubernetes.io/part-of: todo-app
 data:
   POSTGRES_HOST: "postgres"        # 아래 postgres Service 이름
@@ -28,7 +28,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: todo-postgres-pvc
   labels:
-    app.kubernetes.io/name: getting-started-todo-app-fastapi-claude
+    app.kubernetes.io/name: getting-started-todo-app-fastapi-gemini
     app.kubernetes.io/component: database
 spec:
   accessModes:
@@ -44,7 +44,7 @@ metadata:
   name: postgres
   labels:
     app: postgres
-    app.kubernetes.io/name: getting-started-todo-app-fastapi-claude
+    app.kubernetes.io/name: getting-started-todo-app-fastapi-gemini
     app.kubernetes.io/component: database
 spec:
   restartPolicy: Always
@@ -100,7 +100,7 @@ kind: Service
 metadata:
   name: postgres
   labels:
-    app.kubernetes.io/name: getting-started-todo-app-fastapi-claude
+    app.kubernetes.io/name: getting-started-todo-app-fastapi-gemini
     app.kubernetes.io/component: database
 spec:
   type: ClusterIP
@@ -116,7 +116,7 @@ kind: Deployment
 metadata:
   name: todo-backend
   labels:
-    app.kubernetes.io/name: getting-started-todo-app-fastapi-claude
+    app.kubernetes.io/name: getting-started-todo-app-fastapi-gemini
     app.kubernetes.io/component: backend
 spec:
   replicas: 2
@@ -132,7 +132,7 @@ spec:
     metadata:
       labels:
         app: todo-backend
-        app.kubernetes.io/name: getting-started-todo-app-fastapi-claude
+        app.kubernetes.io/name: getting-started-todo-app-fastapi-gemini
         app.kubernetes.io/component: backend
     spec:
       initContainers:
@@ -154,7 +154,7 @@ spec:
       #   - name: ghcr-secret
       containers:
         - name: backend
-          image: ghcr.io/cstpeace0191/todo-lab-ai:prod
+          image: ghcr.io/cstpeace0191/todo-gemini-agent:prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -165,8 +165,14 @@ spec:
             - secretRef:
                 name: todo-db-secret
           env:
-            # (선택) AI 분류용 키. 없으면 AI 분류 없이 일반 Todo 앱으로 동작합니다.
-            # kubectl create secret generic todo-ai-secret --from-literal=ANTHROPIC_API_KEY=sk-ant-...
+            # (선택) AI(ADK/Gemini)용 키. Claude 를 쓰려면 AI_MODEL=claude-* 와 ANTHROPIC_API_KEY 도 같은 Secret 에 넣는다. 없으면 AI 분류 없이 일반 Todo 앱으로 동작합니다.
+            # kubectl create secret generic todo-ai-secret --from-literal=GOOGLE_API_KEY=<Gemini API key>
+            - name: GOOGLE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: todo-ai-secret
+                  key: GOOGLE_API_KEY
+                  optional: true
             - name: ANTHROPIC_API_KEY
               valueFrom:
                 secretKeyRef:
